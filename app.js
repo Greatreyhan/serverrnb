@@ -8,7 +8,7 @@ const methodOverride = require('method-override');
 const session = require('express-session');
 const flash = require('connect-flash');
 // connect to database
-const url = 'mongodb://localhost:27017/rnbserver'
+const url = 'mongodb+srv://kaizen:gimanakabarnya@rnbcluster.s6hia.mongodb.net/MainData?retryWrites=true&w=majority'
 
 mongoose.connect(url, {
   useUnifiedTopology : true,

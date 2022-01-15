@@ -21,7 +21,7 @@
                         <td><%= articles[i].title %></td>
                         <td><%= articles[i].date %></td>
                         <td><%= articles[i].reader %></td>
-                        <td><img src="http://localhost:3000/<%= articles[i].imageUrl %>" alt="imageUrl" width="70px" height="100%" /></td>
+                        <td><img src="https://admin-serverrnb.herokuapp.com/<%= articles[i].imageUrl %>" alt="imageUrl" width="70px" height="100%" /></td>
                         <td>
                           <form action="/admin/articles/delete/<%= articles[i].id %>?_method=DELETE" method="POST" >
                             <a href="/admin/articles/edit/<%= articles[i].id %>" class="btn btn-warning btn-sm" ><i class="fas fa-edit"></i></a>
