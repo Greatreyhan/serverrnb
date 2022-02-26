@@ -4,6 +4,7 @@ const Article = require('../models/Article')
 const ImageUrl = require('../models/ImageUrl')
 const fs = require('fs-extra');
 const path = require('path');
+const cloudinary = require('../utils/cloudinary')
 module.exports = {
     viewDashboard : async (req,res) =>{
         try {
@@ -59,6 +60,13 @@ module.exports = {
     addArticlesAction: async (req, res) => {
       try {
         const { title, contentEditor, description, authorId, tagId } = req.body;
+        // cloudinary
+        const uploader = async (path) => await cloudinary.upload(path,'Images');
+
+        const file = req.file;
+        const {path} = file;
+        const newPath = await uploader(path);
+
         const author = await Author.findOne({_id : authorId})
         const tag = await Tag.findOne({_id : tagId})
         const newArticle = {
@@ -68,7 +76,8 @@ module.exports = {
           description,
           authorId : author._id,
           tagId : tag._id,
-          imageUrl: `images/${req.file.filename}`,
+          imageUrl: newPath.url,
+          idSecret : newPath.id
         };
         const article = await Article.create(newArticle)
         author.articleId.push({_id : article._id})
@@ -142,7 +151,9 @@ module.exports = {
       try{
         const {articleid} = req.params;
         const article = await Article.findOne({_id: articleid})
-        await fs.unlink(path.join(`public/${article.imageUrl}`));
+        // await fs.unlink(path.join(`public/${article.imageUrl}`));
+        const deleteImage = async (id) => await cloudinary.delete(id)
+        const respon = await deleteImage(article.idSecret)
         await article.remove()
         req.flash("alertMessage", `Success Remove Article`);
         req.flash("alertStatus", "success");
@@ -199,6 +210,12 @@ module.exports = {
     addAuthorsAction: async (req, res) => {
       try {
         const { name, occupation, city, instagram, twitter, linkedin } = req.body;
+        // use cloudinary
+        const uploader = async (path) => await cloudinary.upload(path,'Images');
+
+        const file = req.file;
+        const {path} = file;
+        const newPath = await uploader(path)
         await Author.create({
           name,
           occupation,
@@ -206,7 +223,8 @@ module.exports = {
           instagram,
           twitter,
           linkedin,
-          imageUrl: `images/${req.file.filename}`,
+          imageUrl: newPath.url,
+          idSecret: newPath.id
         });
         req.flash("alertMessage", `Success create field ${name}`);
         req.flash("alertStatus", "success");
@@ -270,7 +288,9 @@ module.exports = {
       try{
         const {authorid} = req.params;
         const author = await Author.findOne({_id: authorid})
-        await fs.unlink(path.join(`public/${author.imageUrl}`));
+        const deleteImage = async (id) => await cloudinary.delete(id)
+        const respon = await deleteImage(author.idSecret)
+        //await fs.unlink(path.join(`public/${author.imageUrl}`));
         await author.remove()
         req.flash("alertMessage", `Success Remove Author`);
         req.flash("alertStatus", "success");
@@ -401,15 +421,24 @@ module.exports = {
   },
   addImagesAction: async (req, res) => {
     try {
+      // use cloudinary
+      const uploader = async (path) => await cloudinary.upload(path,'Images');
+
+      const file = req.file;
+      const {path} = file;
+      const newPath = await uploader(path);
+
       const { title } = req.body;
       await ImageUrl.create({
-        imageLink: `images/${req.file.filename}`,
+        imageLink: newPath.url,
         title,
-        date: new Date()
+        date: new Date(),
+        idSecret: newPath.id
       });
       req.flash("alertMessage", `Success create field ${title}`);
       req.flash("alertStatus", "success");
       res.redirect("/admin/images");
+
     } catch (error) {
       req.flash("alertMessage", `${error.message}`);
       req.flash("alertStatus", "danger");
@@ -420,8 +449,11 @@ module.exports = {
     try{
       const {imageid} = req.params;
       const image = await ImageUrl.findOne({_id: imageid})
-      await fs.unlink(path.join(`public/${image.imageLink}`));
+      // await fs.unlink(path.join(`public/${image.imageLink}`));
+      const deleteImage = async (id) => await cloudinary.delete(id)
+      const respon = await deleteImage(image.idSecret)
       await image.remove()
+      
       req.flash("alertMessage", `Success Remove Image`);
       req.flash("alertStatus", "success");
       res.redirect("/admin/images");

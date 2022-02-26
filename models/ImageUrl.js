@@ -12,6 +12,10 @@ const imageUrlSchema = new mongoose.Schema({
     date : {
         type : Date,
         required : true
+    },
+    idSecret : {
+        type : String,
+        required: true
     }
 
 })

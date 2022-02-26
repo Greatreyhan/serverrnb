@@ -34,7 +34,10 @@ const articleSchema = new mongoose.Schema({
         type : ObjectId,
         ref: 'Tag'
     }],
-
+    idSecret: {
+        type: String,
+        required: true
+    }
 })
 
 module.exports = mongoose.model('Article', articleSchema)
